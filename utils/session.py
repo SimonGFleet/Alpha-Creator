@@ -173,3 +173,19 @@ def init_optimiser_session_state() -> None:
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
+
+def init_results_session_state() -> None:
+    """
+    Initialises variables for use in the app
+    Adds variables to streamlit session state, if they are not already in there with default values.
+    """
+    st.title("Results Analysis")
+    defaults = {
+        "current_optimiser_results": pd.DataFrame(),
+        "filtered_results": pd.DataFrame(),
+        "filters": {},
+        "current_strategy": None,
+    }
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value

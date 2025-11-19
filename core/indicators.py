@@ -1,7 +1,14 @@
 import numpy as np
 import pandas as pd
 import streamlit as st
+import indicators_core
 
+
+
+'''def SMA(data: pd.DataFrame, window: int) -> pd.DataFrame:
+
+    data[f"SMA_{window}"] = data["Close"].rolling(window).mean()
+    return data'''
 
 def SMA(data: pd.DataFrame, window: int) -> pd.DataFrame:
     '''
@@ -12,18 +19,12 @@ def SMA(data: pd.DataFrame, window: int) -> pd.DataFrame:
     Returns:
         data: (pandas dataframe) containing the added simple moving average indicator with the chosen window size
     '''
-    data[f"SMA_{window}"] = data["Close"].shift(1).rolling(window).mean()
+    col_name = f"SMA_{window}"
+    prices = data["Close"].to_numpy(dtype=np.float64)
+    data[col_name] = indicators_core.sma(prices, window)
     return data
 
-def EMA(data: pd.DataFrame, window: int) -> pd.DataFrame:
-    '''
-    Calculates Exponential Moving Average stores it in the dataframe with name "EMA_window
-    Args:
-        df: (pandas dataframe) price data
-        window: (integer) number of price checks to average over
-    Returns:
-        data: (pandas dataframe) containing the added exponential moving average indicator with the chosen window size
-    '''
+'''def EMA(data: pd.DataFrame, window: int) -> pd.DataFrame:
     k = 2 / (window + 1)
     col = f"EMA_{window}"
 
@@ -40,6 +41,20 @@ def EMA(data: pd.DataFrame, window: int) -> pd.DataFrame:
             + (1 - k) * data[col].iloc[i - 1]
         )
 
+    return data'''
+
+def EMA(data: pd.DataFrame, window: int) -> pd.DataFrame:
+    '''
+    Calculates Exponential Moving Average stores it in the dataframe with name "EMA_window
+    Args:
+        df: (pandas dataframe) price data
+        window: (integer) number of price checks to average over
+    Returns:
+        data: (pandas dataframe) containing the added exponential moving average indicator with the chosen window size
+    '''
+    col_name = f"EMA_{window}"
+    prices = data["Close"].to_numpy(dtype=np.float64)
+    data[col_name] = indicators_core.ema(prices, window)
     return data
 
 def RSI(data: pd.DataFrame, window: int) -> pd.DataFrame:
@@ -51,21 +66,9 @@ def RSI(data: pd.DataFrame, window: int) -> pd.DataFrame:
     Returns:
         data: (pandas dataframe) containing the added relative strength index indicator with the chosen window size
     '''
-    col = f"RSI_{window}"
-    data[col] = np.nan
-    differences = np.diff(data["Close"].iloc[:window])
-    for i in range(window, len(data)):
-        differences = differences[1:]
-        new_diff = data["Close"].iloc[i] - data["Close"].iloc[i - 1]
-        differences = np.append(differences, new_diff)
-        avg_gain = np.mean(differences[differences >= 0])
-        avg_loss = abs(np.mean(differences[differences < 0]))
-        if avg_loss == 0: rs = 0
-        else:
-            rs = avg_gain / avg_loss
-        rsi = 100 - (100 / (1 + rs))
-        data.loc[data.index[i], col] = rsi
-
+    col_name = f"RSI_{window}"
+    prices = data["Close"].to_numpy(dtype=np.float64)
+    data[col_name] = indicators_core.rsi(prices, window)
     return data
 
 def fetch_indicator(data: pd.DataFrame, selector: tuple[str, int]) -> pd.DataFrame:

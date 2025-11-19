@@ -186,21 +186,66 @@ def get_current_ratio(inputs_metric, results_metric):
     return ratio
 
 
+#---FILTER DATA---
+
+
+
+
+
+
 
 
 #---GRAPHS---
+def _auto_bin_for_series(s: pd.Series):
+    s = pd.to_numeric(s, errors="coerce").dropna()
+    
+    if s.empty:
+        return alt.Bin()  # fallback to default
+
+    unique = s.nunique()
+    data_range = s.max() - s.min()
+
+    # Integers (e.g. window length)
+    if pd.api.types.is_integer_dtype(s):
+        # If the range is not insane, one step per integer
+        if data_range <= 100:
+            # e.g. window 5–190 → step=1 → ~185 bins
+            return alt.Bin(step=1)
+        else:
+            # big ranges: cap the number of bins
+            return alt.Bin(maxbins=100)
+
+    # Floats (e.g. margin 0.0–0.1 in ~10 steps)
+    if pd.api.types.is_float_dtype(s):
+        # few distinct values → one bin per value
+        if unique <= 100:
+            return alt.Bin(maxbins=unique)
+        # more values but small range → moderate number of bins
+        if data_range < 0.5:
+            return alt.Bin(maxbins=20)
+        # otherwise
+        return alt.Bin(maxbins=40)
+
+    # fallback
+    return alt.Bin()
+
+
+
 def show_heatmap(df, x_param, y_param, metric):
+    x_bin = _auto_bin_for_series(df[x_param])
+    y_bin = _auto_bin_for_series(df[y_param])
+
     chart = (
         alt.Chart(df)
         .mark_rect()
         .encode(
-            x=alt.X(f"{x_param}:Q", bin=True),
-            y=alt.Y(f"{y_param}:Q", bin=True),
+            x=alt.X(f"{x_param}:Q", bin=x_bin),
+            y=alt.Y(f"{y_param}:Q", bin=y_bin),
             color=alt.Color(f"{metric}:Q", scale=alt.Scale(scheme="viridis")),
             tooltip=[x_param, y_param, metric]
         )
     )
-    st.altair_chart(chart, use_container_width=True)
+    st.altair_chart(chart, use_container_width=True, )
 
 
 def heatmap_selector(df, plot_fn):

@@ -188,3 +188,28 @@ def get_results_df(Strategy, data_name):
         return None
     
     return pd.DataFrame(st.session_state[data_key])
+
+
+filters_dict = {
+    "SimpleMeanReversion": {
+        "Number of Trades": "integer",
+        "indicator_type": "discrete",
+        },
+
+    "BasicMomentum": {
+        "Number of Trades": "integer",
+        "Short_MA_type": "discrete",
+        "Long_MA_type": "discrete",
+    },
+
+    "BasicRSI": {
+        "Number of Trades": "integer",
+    },
+
+    "Bollinger": {
+        "Number of Trades": "integer",
+        "indicator_type": "discrete",
+        "factor": "float",
+        "margin": "float",
+    }
+}

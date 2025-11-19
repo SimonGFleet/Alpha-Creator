@@ -6,6 +6,8 @@ from utils.session import init_optimiser_session_state
 from core.global_optimiser import run_global_sim, choose_strategy
 
 
+
+
 #---PIPELINE---
 init_optimiser_session_state()
 st.write("We assume a fixed cost per trade of 0.5%")
@@ -43,6 +45,7 @@ run_global_sim(Strategy, st.session_state["name"], params_range)
 #---BUGS---
 # fix global percentage.
 # Fix percentages in general
+# We need to select data before choosing strategy currently
 
 
 
